@@ -1,7 +1,6 @@
 package modem
 
 import (
-	"log"
 	"strings"
 	"time"
 
@@ -12,6 +11,11 @@ type Modem struct {
 	comport  string
 	bound    int
 	instance *serial.Port
+}
+
+type Message struct {
+	Phone   string
+	Message string
 }
 
 func New(comport string, bound int) *Modem {
@@ -73,7 +77,6 @@ func (m *Modem) Delete(id string) {
 */
 func (m *Modem) sendCommand(message string, wait bool) (string, error) {
 	m.instance.Flush()
-	log.Println(message)
 	_, err := m.instance.Write([]byte(message))
 	if err != nil {
 		return "", err
