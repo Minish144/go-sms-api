@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "gen/pb";
+
+import "common.proto";
+
+message Messages {
+    message SendRequest {
+        Message message = 1;
+    }
+
+    message SendResponse {
+    }
+}

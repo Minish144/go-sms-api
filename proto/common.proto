@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "gen/pb";
+
+import public "github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis/google/api/annotations.proto";
+import public "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-openapiv2/options/annotations.proto";
+import public "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
+
+message Message {
+    string phone = 1 [(validate.rules).string = { pattern: "^\\+(?:[0-9]●?){6,14}[0-9]$" }];
+    string message = 2 [(validate.rules).string = { ignore_empty: true, max_len: 160 }];
+}

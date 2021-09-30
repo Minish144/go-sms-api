@@ -1,6 +1,10 @@
 server:
-  interface: 0.0.0.0
-  port: 3200
+  grpc:
+    interface: 0.0.0.0
+    port: 3200
+  http:
+    interface: 0.0.0.0
+    port: 3201
 
 modem:
   comport: /dev/ttyUSB0

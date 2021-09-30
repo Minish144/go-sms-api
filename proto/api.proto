@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "gen/pb";
+
+import "messages.proto";
+
+import "common.proto";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+    info: {
+        title: "Test Swagger"
+        version: "1.0"
+        contact: {
+            name: "Nikolay Varlamov"
+            url: "https://github.com/minish144"
+            email: "varlamow.col@yahoo.com"
+        };
+    };
+    host: "localhost:3201",
+    schemes: [HTTP, HTTPS]
+    consumes: "application/json"
+    produces: "application/json"
+};
+
+service ApiService {
+    rpc SendMessage(Messages.SendRequest) returns (Messages.SendResponse) {
+        option (google.api.http) = {
+            post: "/api/v1/SendSMS";
+            body: "*";
+        };
+
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            description: "Sends an SMS";
+            summary: "Sends an SMS";
+            tags: "Messages";
+        };
+    }
+}

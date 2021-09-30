@@ -1,0 +1,116 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Test Swagger",
+    "version": "1.0",
+    "contact": {
+      "name": "Nikolay Varlamov",
+      "url": "https://github.com/minish144",
+      "email": "varlamow.col@yahoo.com"
+    }
+  },
+  "host": "localhost:3201",
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/v1/SendSMS": {
+      "post": {
+        "summary": "Sends an SMS",
+        "description": "Sends an SMS",
+        "operationId": "ApiService_SendMessage",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/MessagesSendResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MessagesSendRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Messages"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "MessagesSendRequest": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "$ref": "#/definitions/apiMessage"
+        }
+      }
+    },
+    "MessagesSendResponse": {
+      "type": "object"
+    },
+    "apiMessage": {
+      "type": "object",
+      "properties": {
+        "phone": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "runtimeError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}
