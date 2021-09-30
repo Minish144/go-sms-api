@@ -2,6 +2,8 @@ package modem
 
 import (
 	"errors"
+	"os"
+	"runtime"
 	"strings"
 	"time"
 
@@ -11,21 +13,25 @@ import (
 
 type Modem struct {
 	comport  string
-	bound    int
+	boudrate int
 	instance *serial.Port
 }
 
-// TODO add checking if device is connected
-func New(comport string, bound int) *Modem {
-	m := &Modem{comport: comport, bound: bound}
-	c := &serial.Config{Name: comport, Baud: bound, ReadTimeout: time.Second}
+// TODO add checking if device is connected for windows
+func New(comport string, boudrate int) (*Modem, error) {
+	if _, err := os.Stat(comport); runtime.GOOS != "windows" && os.IsNotExist(err) {
+		return nil, errors.New("comport was not found, try checking config.yaml or reconnecting your device")
+	}
+
+	m := &Modem{comport: comport, boudrate: boudrate}
+	c := &serial.Config{Name: comport, Baud: boudrate, ReadTimeout: time.Second}
 	var err error
 	m.instance, err = serial.OpenPort(c)
 	if err != nil {
-		return nil
+		return nil, nil
 	}
 
-	return m
+	return m, nil
 }
 
 func (m *Modem) Send(number string, message string) error {
@@ -34,7 +40,7 @@ func (m *Modem) Send(number string, message string) error {
 	go func() {
 		m.sendCommand("AT+CMGF=1\r", false)
 		m.sendCommand("AT+CMGS=\""+number+"\"\r", false)
-		_, err := m.sendCommand(message+string(rune(26)), true) // string 26 CTRL+Z
+		_, err := m.sendCommand(message+string(rune(26)), true) // 26 = CTRL+Z
 		if err != nil {
 			c <- err
 		}
