@@ -1,7 +1,6 @@
 package modem
 
 import (
-	"errors"
 	"log"
 	"strings"
 	"time"
@@ -9,114 +8,93 @@ import (
 	"github.com/tarm/serial"
 )
 
-type GSMModem struct {
-	ComPort  string
-	BaudRate int
-	Port     *serial.Port
+type Modem struct {
+	comport  string
+	bound    int
+	instance *serial.Port
 }
 
-func New(ComPort string, BaudRate int) (modem *GSMModem) {
-	modem = &GSMModem{ComPort: ComPort, BaudRate: BaudRate}
-	return modem
-}
-
-func (m *GSMModem) Connect() (err error) {
-	config := &serial.Config{Name: m.ComPort, Baud: m.BaudRate, ReadTimeout: time.Second}
-	m.Port, err = serial.OpenPort(config)
-
-	if err == nil {
-		m.initModem()
+func New(comport string, bound int) *Modem {
+	m := &Modem{comport: comport, bound: bound}
+	c := &serial.Config{Name: comport, Baud: bound, ReadTimeout: time.Second}
+	var err error
+	m.instance, err = serial.OpenPort(c)
+	if err != nil {
+		return nil
 	}
 
-	return err
+	return m
 }
 
-func (m *GSMModem) initModem() {
-	m.SendCommand("ATE0\r\n", true)      // echo off
-	m.SendCommand("AT+CMEE=1\r\n", true) // useful error messages
-	m.SendCommand("AT+WIND=0\r\n", true) // disable notifications
-	m.SendCommand("AT+CMGF=1\r\n", true) // switch to TEXT mode
-}
-
-func (m *GSMModem) Expect(possibilities []string) (string, error) {
-	readMax := 0
-	for _, possibility := range possibilities {
-		length := len(possibility)
-		if length > readMax {
-			readMax = length
-		}
+func (m *Modem) Send(number string, message string) error {
+	m.sendCommand("AT+CMGF=1\r", false)
+	m.sendCommand("AT+CMGS=\""+number+"\"\r", false)
+	_, err := m.sendCommand(message+string(rune(26)), true) // string 26 CTRL+Z
+	if err != nil {
+		return err
 	}
+	return nil
+}
 
-	readMax = readMax + 2 // we need offset for \r\n sent by modem
-
-	var status string = ""
-	buf := make([]byte, readMax)
-
-	for i := 0; i < readMax; i++ {
-		// ignoring error as EOF raises error on Linux
-		n, _ := m.Port.Read(buf)
+/*
+func (m *Modem) ReadAll() {
+	m.sendCommand("AT+CMGF=1\r", false)
+	x := m.sendCommand("AT+CMGL=\"ALL\"\r", true)
+	log.Println("XXX ", x)
+	tmp := parseMessage(x)
+	log.Println("MESSAGE ", tmp)
+}
+type Message struct {
+	Id    string
+	Phone string
+	Date  string
+	Msg   string
+}
+func parseMessage(text string) []Message {
+	var list []Message
+	listLines := strings.Split(text, "\r\n")
+	for i := 0; i < len(listLines)-3; i = i + 2 {
+		tmp := strings.Split(listLines[i], ",")
+		tmp[2] = strings.Replace(tmp[2], `"`, ``, -1)
+		id := tmp[0][7:]
+		phone := make([]byte, len(tmp[2]))
+		hex.Decode(phone, []byte(tmp[2]))
+		msg := make([]byte, len(listLines[i+1]))
+		hex.Decode(msg, []byte(listLines[i+1]))
+		list = append(list, Message{Id: id, Phone: string(phone), Date: tmp[4], Msg: string(msg)})
+	}
+	return list
+}
+func (m *Modem) Delete(id string) {
+	m.sendCommand("AT+CMGF=1\r", false)
+	x := m.sendCommand("AT+CMGD="+id+"\r", true)
+	log.Println("MESSAGE ", x)
+}
+*/
+func (m *Modem) sendCommand(message string, wait bool) (string, error) {
+	m.instance.Flush()
+	log.Println(message)
+	_, err := m.instance.Write([]byte(message))
+	if err != nil {
+		return "", err
+	}
+	buf := make([]byte, 1024)
+	var loop int = 1
+	if wait {
+		loop = 10
+	}
+	var msg string
+	var status string
+	for i := 0; i < loop; i++ {
+		n, _ := m.instance.Read(buf)
 		if n > 0 {
 			status = string(buf[:n])
-
-			for _, possibility := range possibilities {
-				if strings.HasSuffix(status, possibility) {
-					log.Println("--- Expect:", m.transposeLog(strings.Join(possibilities, "|")), "Got:", m.transposeLog(status))
-					return status, nil
-				}
+			msg += status
+			if strings.HasSuffix(status, "OK\r\n") || strings.HasSuffix(status, "ERROR\r\n") {
+				break
 			}
 		}
 	}
 
-	log.Println("--- Expect:", m.transposeLog(strings.Join(possibilities, "|")), "Got:", m.transposeLog(status), "(match not found!)")
-	return status, errors.New("match not found")
-}
-
-func (m *GSMModem) Send(command string) {
-	log.Println("--- Send:", m.transposeLog(command))
-	m.Port.Flush()
-	_, err := m.Port.Write([]byte(command))
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func (m *GSMModem) Read(n int) string {
-	var output string = ""
-	buf := make([]byte, n)
-	for i := 0; i < n; i++ {
-		// ignoring error as EOF raises error on Linux
-		c, _ := m.Port.Read(buf)
-		if c > 0 {
-			output = string(buf[:c])
-		}
-	}
-
-	log.Printf("--- Read(%d): %v", n, m.transposeLog(output))
-	return output
-}
-
-func (m *GSMModem) SendCommand(command string, waitForOk bool) string {
-	m.Send(command)
-
-	if waitForOk {
-		output, _ := m.Expect([]string{"OK\r\n", "ERROR\r\n"}) // we will not change api so errors are ignored for now
-		return output
-	} else {
-		return m.Read(1)
-	}
-}
-
-func (m *GSMModem) SendSMS(mobile string, message string) string {
-	log.Println("--- SendSMS ", mobile, message)
-
-	m.Send("AT+CMGS=\"" + mobile + "\"\r") // should return ">"
-	m.Read(3)
-
-	// EOM CTRL-Z = 26
-	return m.SendCommand(message+string(rune(26)), true)
-}
-
-func (m *GSMModem) transposeLog(input string) string {
-	output := strings.Replace(input, "\r\n", "\\r\\n", -1)
-	return strings.Replace(output, "\r", "\\r", -1)
+	return msg, nil
 }
