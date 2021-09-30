@@ -10,5 +10,5 @@ import public "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto
 
 message Message {
     string phone = 1 [(validate.rules).string = { pattern: "^\\+(?:[0-9]●?){6,14}[0-9]$" }];
-    string message = 2;
+    string message = 2 [(validate.rules).string = { ignore_empty: true, max_len: 160 }];
 }

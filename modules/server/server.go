@@ -88,7 +88,7 @@ func Run() {
 
 	mux.HandleFunc("/swagger.json", serveSwagger)
 
-	logrus.Infoln("serving gRPC-Gateway on " + httpConnectionString)
+	logrus.Infoln("serving HTTP gRPC-Gateway on " + httpConnectionString)
 	if err := http.ListenAndServe(httpConnectionString, allowCORS(mux)); err != nil {
 		logrus.WithFields(logrus.Fields{
 			"error": err.Error(),

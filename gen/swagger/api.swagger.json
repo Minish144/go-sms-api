@@ -9,7 +9,7 @@
       "email": "varlamow.col@yahoo.com"
     }
   },
-  "host": "localhost:3010",
+  "host": "localhost:3201",
   "schemes": [
     "http",
     "https"

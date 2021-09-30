@@ -67,7 +67,20 @@ func (m *Message) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	// no validation rules for Message
+	if m.GetMessage() != "" {
+
+		if utf8.RuneCountInString(m.GetMessage()) > 160 {
+			err := MessageValidationError{
+				field:  "Message",
+				reason: "value length must be at most 160 runes",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
 
 	if len(errors) > 0 {
 		return MessageMultiError(errors)
