@@ -1,16 +1,16 @@
 # Golang SMS API
-# Usage
-## Preparations
+## Usage
+### Preparations
 Edit `config.yaml`
 
-## Installation
+### Installation
 `$ go build`
 
-## Running
+### Running
 `$ sudo ./go-sms-api` (sudo is required)
 
-# Development
-## Dependencies
+## Development
+### Dependencies
 ```
 $ export GO111MODULE=off
 
