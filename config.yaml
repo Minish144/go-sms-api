@@ -5,3 +5,4 @@ server:
 modem:
   comport: /dev/ttyUSB0
   baudrate: 9600
+  sms_timeout: 7

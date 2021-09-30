@@ -1,9 +1,11 @@
 package modem
 
 import (
+	"errors"
 	"strings"
 	"time"
 
+	"github.com/spf13/viper"
 	"github.com/tarm/serial"
 )
 
@@ -31,13 +33,24 @@ func New(comport string, bound int) *Modem {
 }
 
 func (m *Modem) Send(number string, message string) error {
-	m.sendCommand("AT+CMGF=1\r", false)
-	m.sendCommand("AT+CMGS=\""+number+"\"\r", false)
-	_, err := m.sendCommand(message+string(rune(26)), true) // string 26 CTRL+Z
-	if err != nil {
+	c := make(chan error)
+
+	go func() {
+		m.sendCommand("AT+CMGF=1\r", false)
+		m.sendCommand("AT+CMGS=\""+number+"\"\r", false)
+		_, err := m.sendCommand(message+string(rune(26)), true) // string 26 CTRL+Z
+		if err != nil {
+			c <- err
+		}
+		c <- nil
+	}()
+
+	select {
+	case err := <-c:
 		return err
+	case <-time.After(viper.GetDuration("modem.sms_timeout") * time.Second):
+		return errors.New("timeout exceed")
 	}
-	return nil
 }
 
 /*

@@ -27,7 +27,6 @@ func HandleSendSMS(w http.ResponseWriter, r *http.Request) {
 	baudrate := viper.GetInt("modem.baudrate")
 	newModem := modem.New(comport, baudrate)
 
-	// TODO add timer
 	if err := newModem.Send(newSms.Phone, newSms.Message); err != nil {
 		logrus.WithFields(
 			logrus.Fields{
