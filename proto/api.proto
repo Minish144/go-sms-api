@@ -19,7 +19,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
         };
     };
     host: "localhost:3010",
-    schemes: [HTTP]
+    schemes: [HTTP, HTTPS]
     consumes: "application/json"
     produces: "application/json"
 };
@@ -27,7 +27,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
 service ApiService {
     rpc SendMessage(Messages.SendRequest) returns (Messages.SendResponse) {
         option (google.api.http) = {
-            post: "/api/v1/SendSms";
+            post: "/api/v1/SendSMS";
             body: "*";
         };
 

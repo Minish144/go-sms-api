@@ -11,7 +11,8 @@
   },
   "host": "localhost:3010",
   "schemes": [
-    "http"
+    "http",
+    "https"
   ],
   "consumes": [
     "application/json"
@@ -20,7 +21,7 @@
     "application/json"
   ],
   "paths": {
-    "/api/v1/SendSms": {
+    "/api/v1/SendSMS": {
       "post": {
         "summary": "Sends an SMS",
         "description": "Sends an SMS",

@@ -161,7 +161,7 @@ func RegisterApiServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 }
 
 var (
-	pattern_ApiService_SendMessage_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "SendSms"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_ApiService_SendMessage_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "SendSMS"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (
