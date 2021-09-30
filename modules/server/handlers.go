@@ -14,6 +14,7 @@ type sms struct {
 	Message string `json:"message"`
 }
 
+// TODO add response message
 func HandleSendSMS(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	defer r.Body.Close()
