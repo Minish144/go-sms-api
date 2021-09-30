@@ -16,7 +16,15 @@ func Send(ctx context.Context, in *pb.Messages_SendRequest) (*pb.Messages_SendRe
 
 	comport := viper.GetString("modem.comport")
 	baudrate := viper.GetInt("modem.baudrate")
-	newModem := modem.New(comport, baudrate)
+	newModem, err := modem.New(comport, baudrate)
+	if err != nil {
+		logrus.WithFields(
+			logrus.Fields{
+				"error": err.Error(),
+			},
+		).Errorln("failed to initialize modem")
+		return nil, err
+	}
 
 	if err := newModem.Send(in.Message.Phone, in.Message.Message); err != nil {
 		logrus.WithFields(
