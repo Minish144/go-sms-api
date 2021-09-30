@@ -15,11 +15,6 @@ type Modem struct {
 	instance *serial.Port
 }
 
-type Message struct {
-	Phone   string
-	Message string
-}
-
 // TODO add checking if device is connected
 func New(comport string, bound int) *Modem {
 	m := &Modem{comport: comport, bound: bound}

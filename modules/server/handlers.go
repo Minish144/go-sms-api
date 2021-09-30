@@ -4,21 +4,18 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/minish144/go-sms-api/gen/pb"
+
 	"github.com/minish144/go-sms-api/modules/modem"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
-type sms struct {
-	Phone   string `json:"phone"`
-	Message string `json:"message"`
-}
-
 // TODO add response message
 func HandleSendSMS(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	defer r.Body.Close()
-	newSms := sms{}
+	newSms := pb.Message{}
 	if err := decoder.Decode(&newSms); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
