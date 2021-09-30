@@ -10,7 +10,7 @@ $ go build
 
 ### Running
 ```bash
-$ sudo ./go-sms-api` # sudo is required
+$ sudo ./go-sms-api # sudo is required
 ```
 
 ## Development
