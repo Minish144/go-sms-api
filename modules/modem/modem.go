@@ -61,12 +61,14 @@ func (m *Modem) ReadAll() {
 	tmp := parseMessage(x)
 	log.Println("MESSAGE ", tmp)
 }
+
 type Message struct {
 	Id    string
 	Phone string
 	Date  string
 	Msg   string
 }
+
 func parseMessage(text string) []Message {
 	var list []Message
 	listLines := strings.Split(text, "\r\n")
@@ -82,6 +84,7 @@ func parseMessage(text string) []Message {
 	}
 	return list
 }
+
 func (m *Modem) Delete(id string) {
 	m.sendCommand("AT+CMGF=1\r", false)
 	x := m.sendCommand("AT+CMGD="+id+"\r", true)
