@@ -20,5 +20,11 @@ func main() {
 	logrus.Info("viper config initialized successfully")
 
 	// server init
-	server.Run()
+	if err := server.Run(); err != nil {
+		logrus.WithFields(
+			logrus.Fields{
+				"error": err.Error(),
+			},
+		).Fatalln("server failed")
+	}
 }

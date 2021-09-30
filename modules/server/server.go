@@ -9,14 +9,16 @@ import (
 	"github.com/spf13/viper"
 )
 
-func Run() {
+func Run() error {
 	router := mux.NewRouter()
+
+	router.HandleFunc("/api/sms", HandleSendSMS).Methods("POST")
 
 	http.Handle("/", router)
 
 	connectionString := getListeningAddress()
 	logrus.Infof("Server is now listening on http://%s", connectionString)
-	http.ListenAndServe(connectionString, nil)
+	return http.ListenAndServe(connectionString, nil)
 }
 
 func getListeningAddress() string {
