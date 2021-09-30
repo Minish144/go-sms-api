@@ -4,14 +4,18 @@
 Edit `config.yaml`
 
 ### Installation
-`$ go build`
+```bash
+$ go build
+```
 
 ### Running
-`$ sudo ./go-sms-api` (sudo is required)
+```bash
+$ sudo ./go-sms-api` # sudo is required
+```
 
 ## Development
 ### Dependencies
-```
+```bash
 $ export GO111MODULE=off
 
 $ go get github.com/grpc-ecosystem/grpc-gateway
