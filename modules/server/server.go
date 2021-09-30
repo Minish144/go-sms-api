@@ -7,31 +7,12 @@ import (
 	"net/http"
 
 	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/minish144/go-sms-api/gen/pb"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
-
-func Start() error {
-	router := mux.NewRouter()
-
-	router.HandleFunc("/api/sms", HandleSendSMS).Methods("POST")
-
-	http.Handle("/", router)
-
-	connectionString := getListeningAddress()
-	logrus.Infof("Server is now listening on http://%s", connectionString)
-	return http.ListenAndServe(connectionString, nil)
-}
-
-func getListeningAddress() string {
-	host := viper.GetString("server.interface")
-	port := viper.GetString("server.port")
-	return fmt.Sprintf("%s:%s", host, port)
-}
 
 func Run() {
 	// server side
