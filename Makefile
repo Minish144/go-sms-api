@@ -1,5 +1,5 @@
 generate:
-	rm -rf gen/{pb,clean_proto,swagger}/{*.go,*.proto,*.json}
+	rm -rf gen/{pb,swagger}/{*.go,*.proto,*.json}
 	mkdir -p gen/{pb,swagger}
 
 	protoc \
